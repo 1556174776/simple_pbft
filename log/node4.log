@@ -1,0 +1,65 @@
+2022-11-15T21:34:03.212+0800	DEBUG	network/consensusNode.go:30	ConsensusNode will be started at localhost:1114...
+
+2022-11-15T21:34:08.260+0800	INFO	network/node.go:180	接收的Pre-prepare Msg: ClientID: client1, Operation: printf, SequenceID: 1668519247222762700
+
+2022-11-15T21:34:08.260+0800	INFO	network/node.go:198	当前节点id:ReplicaNode3 已完成 Pre-prepare阶段
+2022-11-15T21:34:09.274+0800	INFO	network/node.go:208	接收的Prepare Msg: NodeID: ReplicaNode2
+
+2022-11-15T21:34:09.274+0800	DEBUG	consensus/pbft_impl.go:123	当前节点已搜集的Prepare消息Vote Num:1
+2022-11-15T21:34:09.274+0800	INFO	network/node.go:208	接收的Prepare Msg: NodeID: ReplicaNode1
+
+2022-11-15T21:34:09.274+0800	DEBUG	consensus/pbft_impl.go:123	当前节点已搜集的Prepare消息Vote Num:2
+2022-11-15T21:34:09.274+0800	INFO	network/node.go:219	当前节点id:ReplicaNode3 已完成 Prepare阶段
+2022-11-15T21:34:10.289+0800	INFO	network/node.go:230	接收的Commit Msg: NodeID: MainNode
+
+2022-11-15T21:34:10.290+0800	DEBUG	consensus/pbft_impl.go:153	当前节点已搜集的Commit消息Vote Num:1
+2022-11-15T21:34:10.290+0800	INFO	network/node.go:230	接收的Commit Msg: NodeID: ReplicaNode2
+
+2022-11-15T21:34:10.290+0800	DEBUG	consensus/pbft_impl.go:153	当前节点已搜集的Commit消息Vote Num:2
+2022-11-15T21:34:10.290+0800	INFO	network/node.go:253	当前节点id:ReplicaNode3 已完成 Commit阶段
+2022-11-15T21:34:10.290+0800	INFO	network/node.go:135	通过PBFT完成共识, RequestMsg --- clientID:client1 的 Requst Msg:  1668519246, printf, 1668519247222762700
+
+2022-11-15T21:36:07.971+0800	INFO	network/node.go:180	接收的Pre-prepare Msg: ClientID: client2, Operation: printf, SequenceID: 1668519366935576000
+
+2022-11-15T21:36:07.971+0800	INFO	network/node.go:198	当前节点id:ReplicaNode3 已完成 Pre-prepare阶段
+2022-11-15T21:36:08.986+0800	INFO	network/node.go:208	接收的Prepare Msg: NodeID: ReplicaNode2
+
+2022-11-15T21:36:08.986+0800	DEBUG	consensus/pbft_impl.go:123	当前节点已搜集的Prepare消息Vote Num:1
+2022-11-15T21:36:08.986+0800	INFO	network/node.go:208	接收的Prepare Msg: NodeID: ReplicaNode1
+
+2022-11-15T21:36:08.986+0800	DEBUG	consensus/pbft_impl.go:123	当前节点已搜集的Prepare消息Vote Num:2
+2022-11-15T21:36:08.986+0800	INFO	network/node.go:219	当前节点id:ReplicaNode3 已完成 Prepare阶段
+2022-11-15T21:36:10.000+0800	INFO	network/node.go:230	接收的Commit Msg: NodeID: MainNode
+
+2022-11-15T21:36:10.000+0800	DEBUG	consensus/pbft_impl.go:153	当前节点已搜集的Commit消息Vote Num:1
+2022-11-15T21:36:10.001+0800	INFO	network/node.go:230	接收的Commit Msg: NodeID: ReplicaNode2
+
+2022-11-15T21:36:10.001+0800	DEBUG	consensus/pbft_impl.go:153	当前节点已搜集的Commit消息Vote Num:2
+2022-11-15T21:36:10.001+0800	INFO	network/node.go:253	当前节点id:ReplicaNode3 已完成 Commit阶段
+2022-11-15T21:36:10.001+0800	INFO	network/node.go:135	通过PBFT完成共识, RequestMsg --- clientID:client1 的 Requst Msg:  1668519246, printf, 1668519247222762700
+
+2022-11-15T21:36:10.001+0800	INFO	network/node.go:135	通过PBFT完成共识, RequestMsg --- clientID:client2 的 Requst Msg:  1668519366, printf, 1668519366935576000
+
+2022-11-15T21:37:36.577+0800	INFO	network/node.go:180	接收的Pre-prepare Msg: ClientID: client3, Operation: printf, SequenceID: 1668519456530528400
+
+2022-11-15T21:37:36.577+0800	INFO	network/node.go:198	当前节点id:ReplicaNode3 已完成 Pre-prepare阶段
+2022-11-15T21:37:37.592+0800	INFO	network/node.go:208	接收的Prepare Msg: NodeID: ReplicaNode1
+
+2022-11-15T21:37:37.592+0800	DEBUG	consensus/pbft_impl.go:123	当前节点已搜集的Prepare消息Vote Num:1
+2022-11-15T21:37:37.592+0800	INFO	network/node.go:208	接收的Prepare Msg: NodeID: ReplicaNode2
+
+2022-11-15T21:37:37.592+0800	DEBUG	consensus/pbft_impl.go:123	当前节点已搜集的Prepare消息Vote Num:2
+2022-11-15T21:37:37.592+0800	INFO	network/node.go:219	当前节点id:ReplicaNode3 已完成 Prepare阶段
+2022-11-15T21:37:38.595+0800	INFO	network/node.go:230	接收的Commit Msg: NodeID: MainNode
+
+2022-11-15T21:37:38.595+0800	DEBUG	consensus/pbft_impl.go:153	当前节点已搜集的Commit消息Vote Num:1
+2022-11-15T21:37:38.595+0800	INFO	network/node.go:230	接收的Commit Msg: NodeID: ReplicaNode1
+
+2022-11-15T21:37:38.595+0800	DEBUG	consensus/pbft_impl.go:153	当前节点已搜集的Commit消息Vote Num:2
+2022-11-15T21:37:38.595+0800	INFO	network/node.go:253	当前节点id:ReplicaNode3 已完成 Commit阶段
+2022-11-15T21:37:38.595+0800	INFO	network/node.go:135	通过PBFT完成共识, RequestMsg --- clientID:client1 的 Requst Msg:  1668519246, printf, 1668519247222762700
+
+2022-11-15T21:37:38.595+0800	INFO	network/node.go:135	通过PBFT完成共识, RequestMsg --- clientID:client2 的 Requst Msg:  1668519366, printf, 1668519366935576000
+
+2022-11-15T21:37:38.595+0800	INFO	network/node.go:135	通过PBFT完成共识, RequestMsg --- clientID:client3 的 Requst Msg:  1668519455, printf, 1668519456530528400
+

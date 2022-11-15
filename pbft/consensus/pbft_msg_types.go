@@ -4,7 +4,7 @@ type RequestMsg struct {
 	Timestamp  int64  `json:"timestamp"`
 	ClientID   string `json:"clientID"`
 	Operation  string `json:"operation"`
-	SequenceID int64  `json:"sequenceID"`
+	SequenceID int64  `json:"sequenceID"` //client产生消息时不需要填，共识过程会为其添加
 }
 
 type ReplyMsg struct {
@@ -27,10 +27,11 @@ type VoteMsg struct {
 	SequenceID int64  `json:"sequenceID"`
 	Digest     string `json:"digest"`
 	NodeID     string `json:"nodeID"`
-	MsgType           `json:"msgType"`
+	MsgType    `json:"msgType"`
 }
 
 type MsgType int
+
 const (
 	PrepareMsg MsgType = iota
 	CommitMsg

@@ -2,9 +2,11 @@ package network
 
 import (
 	"fmt"
-	"github.com/bigpicturelabs/consensusPBFT/pbft/consensus"
+
+	"Github/simplePBFT/pbft/consensus"
 )
 
+// 产生日志消息,后续可以改进，输入到文件中而不是输出到stdout
 func LogMsg(msg interface{}) {
 	switch msg.(type) {
 	case *consensus.RequestMsg:
