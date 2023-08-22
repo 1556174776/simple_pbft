@@ -8,7 +8,7 @@ import (
 type CommitMsgPool struct {
 	CmMsgPool map[string]consensus.VoteMsg //CommitMsg的来源节点NodeID作为key
 
-	poolMutex sync.Mutex
+	poolMutex sync.RWMutex
 }
 
 func NewCommitMsgPool() *CommitMsgPool {
@@ -42,21 +42,21 @@ func (cmp *CommitMsgPool) DelAllCommitMsg() {
 }
 
 func (cmp *CommitMsgPool) MsgNum() int {
-	cmp.poolMutex.Lock()
-	defer cmp.poolMutex.Unlock()
+	cmp.poolMutex.RLock()
+	defer cmp.poolMutex.RUnlock()
 	return len(cmp.CmMsgPool)
 }
 
 func (cmp *CommitMsgPool) GetCmMsgByDigest(nodeID string) consensus.VoteMsg {
-	cmp.poolMutex.Lock()
-	defer cmp.poolMutex.Unlock()
+	cmp.poolMutex.RLock()
+	defer cmp.poolMutex.RUnlock()
 
 	return cmp.CmMsgPool[nodeID]
 }
 
 func (cmp *CommitMsgPool) GetAllCmMsg() []consensus.VoteMsg {
-	cmp.poolMutex.Lock()
-	defer cmp.poolMutex.Unlock()
+	cmp.poolMutex.RLock()
+	defer cmp.poolMutex.RUnlock()
 
 	result := make([]consensus.VoteMsg, 0)
 	for _, msg := range cmp.CmMsgPool {

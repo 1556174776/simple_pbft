@@ -8,7 +8,7 @@ import (
 type PrePrepareMsgPool struct {
 	PPMsgPool map[string]consensus.PrePrepareMsg //包含的request Msg的摘要作为key
 
-	poolMutex sync.Mutex
+	poolMutex sync.RWMutex
 }
 
 func NewPPMsgPool() *PrePrepareMsgPool {
@@ -34,22 +34,22 @@ func (ppmp *PrePrepareMsgPool) DelPPMsg(digest string) {
 }
 
 func (ppmp *PrePrepareMsgPool) MsgNum() int {
-	ppmp.poolMutex.Lock()
-	defer ppmp.poolMutex.Unlock()
+	ppmp.poolMutex.RLock()
+	defer ppmp.poolMutex.RUnlock()
 
 	return len(ppmp.PPMsgPool)
 }
 
 func (ppmp *PrePrepareMsgPool) GetPPMsgByDigest(digest string) consensus.PrePrepareMsg {
-	ppmp.poolMutex.Lock()
-	defer ppmp.poolMutex.Unlock()
+	ppmp.poolMutex.RLock()
+	defer ppmp.poolMutex.RUnlock()
 
 	return ppmp.PPMsgPool[digest]
 }
 
 func (ppmp *PrePrepareMsgPool) GetAllPPMsg() []consensus.PrePrepareMsg {
-	ppmp.poolMutex.Lock()
-	defer ppmp.poolMutex.Unlock()
+	ppmp.poolMutex.RLock()
+	defer ppmp.poolMutex.RUnlock()
 
 	result := make([]consensus.PrePrepareMsg, 0)
 	for _, msg := range ppmp.PPMsgPool {

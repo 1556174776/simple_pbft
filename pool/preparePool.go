@@ -8,7 +8,7 @@ import (
 type PrepareMsgPool struct {
 	PreMsgPool map[string]consensus.VoteMsg //PrepareMsg的来源节点NodeID作为key
 
-	poolMutex sync.Mutex
+	poolMutex sync.RWMutex
 }
 
 func NewPreMsgPool() *PrepareMsgPool {
@@ -41,21 +41,21 @@ func (pmp *PrepareMsgPool) DelAllPreMsg() {
 }
 
 func (pmp *PrepareMsgPool) MsgNum() int {
-	pmp.poolMutex.Lock()
-	defer pmp.poolMutex.Unlock()
+	pmp.poolMutex.RLock()
+	defer pmp.poolMutex.RUnlock()
 	return len(pmp.PreMsgPool)
 }
 
 func (pmp *PrepareMsgPool) GetPreMsgByDigest(nodeID string) consensus.VoteMsg {
-	pmp.poolMutex.Lock()
-	defer pmp.poolMutex.Unlock()
+	pmp.poolMutex.RLock()
+	defer pmp.poolMutex.RUnlock()
 
 	return pmp.PreMsgPool[nodeID]
 }
 
 func (pmp *PrepareMsgPool) GetAllPreMsg() []consensus.VoteMsg {
-	pmp.poolMutex.Lock()
-	defer pmp.poolMutex.Unlock()
+	pmp.poolMutex.RLock()
+	defer pmp.poolMutex.RUnlock()
 
 	result := make([]consensus.VoteMsg, 0)
 

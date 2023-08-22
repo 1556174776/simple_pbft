@@ -8,7 +8,7 @@ import (
 type ReplyMsgPool struct {
 	RyMsgPool map[string]consensus.ReplyMsg //NodeID做key值
 
-	poolMutex sync.Mutex
+	poolMutex sync.RWMutex
 }
 
 func NewRyMsgPool() *ReplyMsgPool {
@@ -41,16 +41,16 @@ func (ry *ReplyMsgPool) DelAllRyMsg() {
 }
 
 func (ry *ReplyMsgPool) GetRyMsgByClientID(nodeID string) consensus.ReplyMsg {
-	ry.poolMutex.Lock()
-	defer ry.poolMutex.Unlock()
+	ry.poolMutex.RLock()
+	defer ry.poolMutex.RUnlock()
 
 	return ry.RyMsgPool[nodeID]
 
 }
 
 func (ry *ReplyMsgPool) GetAllRyMsg() []consensus.ReplyMsg {
-	ry.poolMutex.Lock()
-	defer ry.poolMutex.Unlock()
+	ry.poolMutex.RLock()
+	defer ry.poolMutex.RUnlock()
 
 	result := make([]consensus.ReplyMsg, 0)
 	for _, msg := range ry.RyMsgPool {
@@ -60,8 +60,8 @@ func (ry *ReplyMsgPool) GetAllRyMsg() []consensus.ReplyMsg {
 }
 
 func (ry *ReplyMsgPool) MsgNum() int {
-	ry.poolMutex.Lock()
-	defer ry.poolMutex.Unlock()
+	ry.poolMutex.RLock()
+	defer ry.poolMutex.RUnlock()
 
 	return len(ry.RyMsgPool)
 }

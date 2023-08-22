@@ -245,7 +245,7 @@ func (node *Node) GetCommit(commitMsg *consensus.VoteMsg) error {
 		// Save the last version of committed messages to node.
 		node.CommittedMsgs = append(node.CommittedMsgs, committedMsg) //将完成共识的request消息添加到node.CommittedMsgs消息池中
 
-		// 情况State对象本次共识所缓存的log消息(node.CommittedMsgs已经记录了完成共识的request消息)
+		// 清空State对象本次共识所缓存的除了commitLog外的log消息(node.CommittedMsgs已经记录了完成共识的request消息)
 		node.CurrentState.MsgLogs.ReqMsg = nil
 		node.CurrentState.MsgLogs.PrepareMsgs = make(map[string]*consensus.VoteMsg)
 		node.CurrentState.MsgLogs.CommitMsgs = make(map[string]*consensus.VoteMsg)
@@ -305,7 +305,7 @@ func (node *Node) dispatchMsg() {
 				zapConfig.SugarLogger.Errorln(err)
 				// TODO: send err to ErrorChannel
 			}
-		case <-node.Alarm: //定时扫描消息池中的消息
+		case <-node.Alarm: //定期启动新一轮共识(结合当前消息池和共识状态),通过从消息池中取出消息进行共识
 			err := node.routeMsgWhenAlarmed()
 			if err != nil {
 				zapConfig.SugarLogger.Errorln(err)
@@ -368,8 +368,7 @@ func (node *Node) routeMsgWhenAlarmed() []error {
 
 		// 主节点负责读取request消息池
 		if node.MsgBuffer.ReqMsgs.MsgNum() != 0 {
-			msgs := make([]consensus.RequestMsg, node.MsgBuffer.ReqMsgs.MsgNum())
-			copy(msgs, node.MsgBuffer.ReqMsgs.GetAllReqMsg())
+			msgs := node.MsgBuffer.ReqMsgs.GetAllReqMsg()
 
 			for i := 0; i < node.MsgBuffer.ReqMsgs.MsgNum(); i++ {
 				node.MsgBuffer.ReqMsgs.DelReqMsg(msgs[i].ClientID)
@@ -380,8 +379,7 @@ func (node *Node) routeMsgWhenAlarmed() []error {
 		// 副本节点负责读取pre-prepare消息池
 		if node.MsgBuffer.PrePrepareMsgs.MsgNum() != 0 {
 
-			msgs := make([]consensus.PrePrepareMsg, node.MsgBuffer.PrePrepareMsgs.MsgNum())
-			copy(msgs, node.MsgBuffer.PrePrepareMsgs.GetAllPPMsg())
+			msgs := node.MsgBuffer.PrePrepareMsgs.GetAllPPMsg()
 
 			for i := 0; i < node.MsgBuffer.PrePrepareMsgs.MsgNum(); i++ {
 				node.MsgBuffer.PrePrepareMsgs.DelPPMsg(msgs[i].Digest)
@@ -392,13 +390,12 @@ func (node *Node) routeMsgWhenAlarmed() []error {
 
 	} else { //正处于pbft共识阶段中
 		switch node.CurrentState.CurrentStage {
-		case consensus.PrePrepared: //刚刚完成pbft的pre-prepare阶段,取出MsgBuffer.PrepareMsgs缓存池中的全部消息，输入到node.MsgDelivery管道
+		case consensus.PrePrepared: //刚刚完成pbft的pre-prepare阶段,需要进入prepare阶段,取出MsgBuffer.PrepareMsgs缓存池中的全部消息，输入到node.MsgDelivery管道
 
 			if node.MsgBuffer.PrepareMsgs.MsgNum() >= 2*f { //必须保证当前节点收集到了至少 2*f 个节点的PrepareMsg
 
 				//zapConfig.SugarLogger.Debugf("消息扫描 len of PrepareMsg:%d", node.MsgBuffer.PrepareMsgs.MsgNum())
-				msgs := make([]consensus.VoteMsg, node.MsgBuffer.PrepareMsgs.MsgNum())
-				copy(msgs, node.MsgBuffer.PrepareMsgs.GetAllPreMsg())
+				msgs := node.MsgBuffer.PrepareMsgs.GetAllPreMsg()
 
 				for i := 0; i < node.MsgBuffer.PrepareMsgs.MsgNum(); i++ {
 					node.MsgBuffer.PrepareMsgs.DelPreMsg(msgs[i].NodeID)
@@ -408,11 +405,10 @@ func (node *Node) routeMsgWhenAlarmed() []error {
 				node.MsgDelivery <- msgs
 			}
 
-		case consensus.Prepared: //刚刚完成pbft的prepare阶段,取出MsgBuffer.CommitMsgs缓存池中的全部消息，输入到node.MsgDelivery管道
+		case consensus.Prepared: //刚刚完成pbft的prepare阶段,需要进入commit阶段,取出MsgBuffer.CommitMsgs缓存池中的全部消息，输入到node.MsgDelivery管道
 
 			if node.MsgBuffer.CommitMsgs.MsgNum() >= 2*f { //必须保证当前节点收集到了至少 2*f 个节点的CommitMsg
-				msgs := make([]consensus.VoteMsg, node.MsgBuffer.CommitMsgs.MsgNum())
-				copy(msgs, node.MsgBuffer.CommitMsgs.GetAllCmMsg())
+				msgs := node.MsgBuffer.CommitMsgs.GetAllCmMsg()
 
 				for i := 0; i < node.MsgBuffer.CommitMsgs.MsgNum(); i++ {
 					node.MsgBuffer.CommitMsgs.DelCommitMsg(msgs[i].NodeID)
@@ -422,12 +418,11 @@ func (node *Node) routeMsgWhenAlarmed() []error {
 
 				node.MsgDelivery <- msgs
 			}
-		case consensus.Committed: //完成了pbft的commit阶段,取出MsgBuffer.ReplyMsgs缓存池中的全部消息，输入到node.MsgDelivery管道
+		case consensus.Committed: //完成了pbft的commit阶段,需要进入reply阶段,取出MsgBuffer.ReplyMsgs缓存池中的全部消息，输入到node.MsgDelivery管道
 			//zapConfig.SugarLogger.Debugf("当前共识状态为:consensus.Committed,消息数为%d", node.MsgBuffer.ReplyMsgs.MsgNum())
 
 			if node.MsgBuffer.ReplyMsgs.MsgNum() >= f+1 { //必须保证当前主节点收集到了至少 f+1 个节点的ReplyMsg(可以是主节点自己的reply)
-				msgs := make([]consensus.ReplyMsg, node.MsgBuffer.ReplyMsgs.MsgNum())
-				copy(msgs, node.MsgBuffer.ReplyMsgs.GetAllRyMsg())
+				msgs := node.MsgBuffer.ReplyMsgs.GetAllRyMsg()
 
 				for i := 0; i < node.MsgBuffer.ReplyMsgs.MsgNum(); i++ {
 					node.MsgBuffer.ReplyMsgs.DelRyMsg(msgs[i].NodeID)
@@ -457,7 +452,7 @@ func (node *Node) resolveMsg() {
 			// }
 			var tempMsgs []consensus.RequestMsg = msgs.([]consensus.RequestMsg)
 
-			errs := node.resolveRequestMsg(tempMsgs) //根据此request消息产生pre-prepare消息并广播给其他共识节点
+			errs := node.resolveRequestMsg(tempMsgs) // 主节点根据此request消息产生pre-prepare消息并广播给其他共识节点
 			if len(errs) != 0 {
 				for _, err := range errs {
 					fmt.Println(err)
@@ -467,7 +462,7 @@ func (node *Node) resolveMsg() {
 		case []consensus.PrePrepareMsg: //pbft一阶段产生的PrePrepareMsg消息
 			var tempMsgs []consensus.PrePrepareMsg = msgs.([]consensus.PrePrepareMsg)
 
-			errs := node.resolvePrePrepareMsg(tempMsgs)
+			errs := node.resolvePrePrepareMsg(tempMsgs) // 副本节点根据此Pre-PrepareMsg消息,生成共识处理器以及prepareMsg并进行广播
 			if len(errs) != 0 {
 				for _, err := range errs {
 					fmt.Println(err)
@@ -482,8 +477,10 @@ func (node *Node) resolveMsg() {
 			}
 
 			//判断voteMsg到底是PrepareMsg消息还是CommitMsg消息,分类处理
+
+			// TODO:这个地方需要注意,如果共识消息发送过快,可能会产生粘包
 			if tempMsgs[0].MsgType == consensus.PrepareMsg {
-				errs := node.resolvePrepareMsg(tempMsgs)
+				errs := node.resolvePrepareMsg(tempMsgs) // 节点根据收集到的prepareMsg,生成commitMsg进行广播
 				if len(errs) != 0 {
 					for _, err := range errs {
 						fmt.Println(err)
@@ -491,7 +488,7 @@ func (node *Node) resolveMsg() {
 					// TODO: send err to ErrorChannel
 				}
 			} else if tempMsgs[0].MsgType == consensus.CommitMsg {
-				errs := node.resolveCommitMsg(tempMsgs)
+				errs := node.resolveCommitMsg(tempMsgs) // 节点根据收集到的commitMsg,生成replyMsg发送给主节点(主节点自己也会给自己发送一份)
 				if len(errs) != 0 {
 					for _, err := range errs {
 						fmt.Println(err)
@@ -563,8 +560,8 @@ func (node *Node) resolvePrepareMsg(msgs []consensus.VoteMsg) []error {
 	errs := make([]error, 0)
 	// Resolve messages
 	for _, prepareMsg := range msgs {
-		err := node.GetPrepare(&prepareMsg)
-		if err == utils.MSGENOUGH { //需要获取的共识消息数已达到要求
+		err := node.GetPrepare(&prepareMsg) // 一次传入一个prepareMsg,当凑够2f条时返回utils.MSGENOUGH
+		if err == utils.MSGENOUGH {         //需要获取的共识消息数已达到要求
 			break
 		}
 		if err != nil {

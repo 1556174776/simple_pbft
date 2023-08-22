@@ -9,7 +9,7 @@ import (
 type RequestMsgPool struct {
 	ReqMsgPool map[string]consensus.RequestMsg //clientID做key值
 
-	poolMutex sync.Mutex
+	poolMutex sync.RWMutex
 }
 
 func NewReqMsgPool() *RequestMsgPool {
@@ -36,8 +36,8 @@ func (rmp *RequestMsgPool) DelReqMsg(id string) {
 }
 
 func (rmp *RequestMsgPool) GetReqMsgByClientID(id string) consensus.RequestMsg {
-	rmp.poolMutex.Lock()
-	defer rmp.poolMutex.Unlock()
+	rmp.poolMutex.RLock()
+	defer rmp.poolMutex.RUnlock()
 
 	if result, ok := rmp.ReqMsgPool[id]; ok {
 		return result
@@ -49,8 +49,8 @@ func (rmp *RequestMsgPool) GetReqMsgByClientID(id string) consensus.RequestMsg {
 }
 
 func (rmp *RequestMsgPool) GetAllReqMsg() []consensus.RequestMsg {
-	rmp.poolMutex.Lock()
-	defer rmp.poolMutex.Unlock()
+	rmp.poolMutex.RLock()
+	defer rmp.poolMutex.RUnlock()
 
 	result := make([]consensus.RequestMsg, 0)
 	for _, msg := range rmp.ReqMsgPool {
@@ -60,8 +60,8 @@ func (rmp *RequestMsgPool) GetAllReqMsg() []consensus.RequestMsg {
 }
 
 func (rmp *RequestMsgPool) MsgNum() int {
-	rmp.poolMutex.Lock()
-	defer rmp.poolMutex.Unlock()
+	rmp.poolMutex.RLock()
+	defer rmp.poolMutex.RUnlock()
 
 	return len(rmp.ReqMsgPool)
 }
