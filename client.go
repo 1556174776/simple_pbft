@@ -25,6 +25,7 @@ func main() {
 	}
 
 	send("localhost:1111/req", encodeByte)
+
 }
 
 func send(url string, msg []byte) {

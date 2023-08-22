@@ -2,9 +2,9 @@
 
 if exist .\pbftNode.exe (  
     del .\pbftNode.exe
-    go build -o pbftNode.exe .\main.go
+    go build -o pbftNode.exe .\pbftNode.go
 ) else (
-    go build -o pbftNode.exe .\main.go
+    go build -o pbftNode.exe .\pbftNode.go
 )
 
 

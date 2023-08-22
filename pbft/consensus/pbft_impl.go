@@ -1,6 +1,7 @@
 package consensus
 
 import (
+	"Github/simplePBFT/utils"
 	"Github/simplePBFT/zapConfig"
 	"encoding/json"
 	"errors"
@@ -238,5 +239,5 @@ func digest(object interface{}) (string, error) {
 		return "", err
 	}
 
-	return Hash(msg), nil
+	return utils.Hash(msg), nil
 }
